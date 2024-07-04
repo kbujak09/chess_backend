@@ -3,6 +3,13 @@ class Piece:
     self.piece_type = piece_type
     self.color = color
     
+  def get_piece_type(self):
+    return self.piece_type
+    
+  def get_color(self):
+    return self.color
+pass
+    
 class LineMoverPiece(Piece):
   def moves_in_directions(self, position, board, move_directions):
     moves = []
@@ -24,9 +31,8 @@ class LineMoverPiece(Piece):
         else:
           break
     return moves
+pass
 
-    
-    
 class Pawn(Piece):
   def __init__(self, color):
     super().__init__('pawn', color)
@@ -58,7 +64,6 @@ class Bishop(LineMoverPiece):
     return self.moves_in_directions(position, board, move_directions)
 pass
       
-    
 class Knight(Piece):
   def __init__(self, color):
     super().__init__('knight', color)
@@ -71,9 +76,10 @@ class Knight(Piece):
     for d in move_direction:
       temp_x = x + d[0]
       temp_y = y + d[1]
-      if 0 <= temp_x < 8 and 0 <= temp_y < 8 and board[temp_x][temp_y]is None:
+      if 0 <= temp_x < 8 and 0 <= temp_y < 8:
+        if board[temp_x][temp_y]is None:
           moves.append((temp_x, temp_y))
-      elif board[temp_x][temp_y]is not None and board[temp_x][temp_y].color != self.color:
+        elif board[temp_x][temp_y]is not None and board[temp_x][temp_y].color != self.color:
           moves.append((temp_x, temp_y))
     return moves
 pass
@@ -86,7 +92,6 @@ class Rook(LineMoverPiece):
     move_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     return self.moves_in_directions(position, board, move_directions)
 pass
-    
     
 class Queen(LineMoverPiece):
   def __init__(self, color):
@@ -111,7 +116,8 @@ class King(Piece):
     for d in move_directions:
       row = x + d[0]
       col = y + d[1]
-      if board[row][col] is None or board[row][col].color != self.color:
-        moves.append((row, col))
+      if 0 <= row < 8 and 0 <= col < 8:
+        if board[row][col] is None or board[row][col].color != self.color:
+          moves.append((row, col))
     return moves
 pass

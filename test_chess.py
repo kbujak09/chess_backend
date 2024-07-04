@@ -50,9 +50,11 @@ def test_figures_placement(setup):
     _, test_board = setup
     figures = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook']
     for i in range(8):
+        # tests figures placement
         assert test_board.board[0][i].piece_type == figures[i] and test_board.board[0][i].color == 'white'
-        assert test_board.board[1][i].piece_type == 'pawn' and test_board.board[1][i].color == 'white'
         assert test_board.board[7][i].piece_type == figures[i] and test_board.board[7][i].color == 'black'
+        # tests pawns placement
+        assert test_board.board[1][i].piece_type == 'pawn' and test_board.board[1][i].color == 'white'
         assert test_board.board[6][i].piece_type == 'pawn' and test_board.board[6][i].color == 'black'
 
 def test_bishop_moves(setup):
@@ -110,3 +112,36 @@ def test_king_moves(setup):
     empty_board[4][3] = white_pawn
     empty_board[3][4] = black_pawn
     assert sorted(king.moves((3,3), empty_board)) == sorted([(4, 2), (4, 4), (3, 2), (3, 4), (2, 2), (2, 3), (2, 4)])
+    
+def test_moving_piece(setup):
+    _, test_board = setup
+    test_board.move_piece((1, 0), (2, 0))
+    assert test_board.board[1][0] is None
+    assert test_board.board[2][0] is not None
+    
+def test_is_empty(setup):
+    _, test_board = setup
+    assert test_board.is_empty((3, 0)) == True
+    assert test_board.is_empty((1, 0)) == False
+    
+def test_get_piece_at(setup):
+    _, test_board = setup
+    assert test_board.get_piece_at((0, 0)) == 'rook'
+    assert test_board.get_piece_at((0, 2)) == 'bishop'
+    assert test_board.get_piece_at((3, 0)) == None
+
+def test_get_king_position(setup):
+    _, test_board = setup
+    assert test_board.get_king_position('white') == (0, 4)
+    assert test_board.get_king_position('white') != (2, 5)
+    assert test_board.get_king_position('black') == (7, 4)
+    
+def test_is_check(setup):
+    _, test_board = setup
+    black_rook = Rook('black')
+    test_board.board[1][4] = None
+    test_board.board[5][4] = black_rook
+    assert test_board.is_check('black') == False
+    assert test_board.is_check('white') == True
+    
+     
