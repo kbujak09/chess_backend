@@ -144,4 +144,37 @@ def test_is_check(setup):
     assert test_board.is_check('black') == False
     assert test_board.is_check('white') == True
     
-     
+def test_get_all_color_moves(setup):
+    _, test_board = setup
+    assert sorted(test_board.get_all_color_moves('white')) == sorted([(2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7)])
+    
+def test_is_checkmate(setup):
+    _, test_board = setup
+    white_queen = Queen('white')
+    black_knight = Knight('black')
+    test_board.board[7][3] = None
+    test_board.board[7][2] = white_queen
+    test_board.board[2][3] = black_knight
+    assert test_board.is_checkmate('black') == True
+    assert test_board.is_checkmate('white') == False
+    
+def test_get_king_legal_moves(setup):
+    _, test_board = setup
+    test_board.board[7][3] = None
+    test_board.board[6][3] = None
+    test_board.board[1][3] = None
+    assert test_board.get_king_legal_moves('white') == [(1, 3)]
+    assert test_board.get_king_legal_moves('black') == []
+    
+def test_is_stalemate(setup):
+    _, test_board = setup
+    test_board.clear_board()
+    white_king = King('white')
+    black_king = King('black')
+    white_pawn = Pawn('white')
+    test_board.board[7][0] = black_king
+    test_board.board[5][1] = white_king
+    test_board.board[6][0] = white_pawn
+    assert test_board.is_stalemate('white') == False
+    assert test_board.is_stalemate('black') == True
+    

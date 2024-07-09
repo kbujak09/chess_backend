@@ -44,7 +44,7 @@ class Pawn(Piece):
     
     if 0 <= x + direction < 8 and board[x + direction][y] is None:
       moves.append((x + direction, y))
-      if board[x + 2 * direction][y] is None and ((self.color == 'white' and x == 1) or (self.color == 'black' and x == 6)):
+      if 0 <= x + direction*2 < 8 and board[x + 2 * direction][y] is None and ((self.color == 'white' and x == 1) or (self.color == 'black' and x == 6)):
         moves.append((x + 2 * direction, y))
           
     if (0 <= x + direction < 8):
