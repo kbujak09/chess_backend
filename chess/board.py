@@ -4,6 +4,7 @@ class Board:
   def __init__(self):
     self.board = [[None for _ in range(8)] for _ in range(8)]
     self.setup_pieces()
+    self.move_history = []
       
   def setup_pieces(self):
     for y in range(8):
@@ -63,6 +64,24 @@ class Board:
             if move not in moves:
               moves.append(move)
     return moves
+  
+  def get_check_blocking_moves(self, color):
+    moves = []
+    for row in range(8):
+      for col in range(8):
+        piece = self.board[row][col]
+        if piece and piece.get_color() == color:
+          for move in piece.moves((row, col), self.board):
+            saved_piece = self.board[move[0]][move[1]]
+            self.move_piece((row, col), move)
+            if not self.is_check(color):
+              self.move_piece(move, (row, col))
+              self.board[move[0]][move[1]] = saved_piece
+              moves.append((row, col))
+            else:
+              self.move_piece(move, (row, col))
+              self.board[move[0]][move[1]] = saved_piece
+    return moves
             
   def is_checkmate(self, color):
     enemy_color = 'white' if color == 'black' else 'black'
@@ -79,17 +98,8 @@ class Board:
               if move not in self.get_all_color_moves(enemy_color):
                 return False
           # checks if attacking piece can be blocked or taken
-          if piece and piece.get_color() == color:
-            for move in piece.moves((row, col), self.board):
-              saved_piece = self.board[move[0]][move[1]]
-              self.move_piece((row, col), move)
-              if not self.is_check(color):
-                self.move_piece(move, (row, col))
-                self.board[move[0]][move[1]] = saved_piece
-                return False
-              else:
-                self.move_piece(move, (row, col))
-                self.board[move[0]][move[1]] = saved_piece
+          if self.get_check_blocking_moves(color):
+            return False
     return True
     
   def print_board(self):
@@ -147,8 +157,49 @@ class Board:
           elif piece.get_piece_type() != 'king' and piece.moves((row, col), self.board):  
             return False 
     return True
+  
+  def make_move(self, start_pos, end_pos):
+    piece = self.board[start_pos[0]][start_pos[1]]
+    saved_piece = self.board[end_pos[0]][end_pos[1]]
     
-      
+    if not piece:
+      return False
     
+    if isinstance(piece, King):
+      if end_pos not in self.get_king_legal_moves(piece.get_color()):
+        return False
+      else:
+        self.move_piece(start_pos, end_pos)
+        self.move_history.append((start_pos, end_pos))
+        return True
+    
+    if self.is_check(piece.get_color()) and not self.get_check_blocking_moves(piece.get_color()):
+      return False
+    
+    if end_pos not in piece.moves((start_pos), self.board):
+      return False
+    
+    self.move_piece(start_pos, end_pos)
+    
+    if self.is_check(piece.get_color()):
+      self.move_piece(end_pos, start_pos)
+      self.board[end_pos[0]][end_pos[1]] = saved_piece
+      return False
+    
+    self.move_history.append((start_pos, end_pos))
+    return True
+    
+  def board_to_json(self):
+    data = []
+    for row in range(8):
+      for col in range(8):
+        piece = self.board[row][col]
+        if piece:
+          data.append({
+            'type': piece.get_piece_type(),
+            'color': piece.get_color(),
+            'position': (row, col)
+          })
+    return data
     
     

@@ -178,3 +178,37 @@ def test_is_stalemate(setup):
     assert test_board.is_stalemate('white') == False
     assert test_board.is_stalemate('black') == True
     
+def test_make_move_king_into_check(setup):
+    _, test_board = setup
+    test_board.clear_board()
+    white_king = King('white')
+    black_king = King('black')
+    white_queen = Queen('white')
+    test_board.board[0][0] = white_king
+    test_board.board[1][0] = white_queen
+    test_board.board[7][1] = black_king
+    assert test_board.make_move((7, 1), (7, 0)) == False
+
+def test_make_move_pinned_piece(setup):
+    _, test_board = setup
+    test_board.clear_board()
+    test_board.board[0][0] = King('white')
+    test_board.board[0][1] = Pawn('white')
+    test_board.board[0][7] = Rook('black')
+    assert test_board.make_move((0, 1), (2, 1)) == False
+    
+def test_make_move_illegal(setup):
+    _, test_board = setup
+    assert test_board.make_move((0, 0), (7, 0)) == False
+    
+def test_make_move(setup):
+    _, test_board = setup
+    assert test_board.make_move((1, 4), (3, 4)) == True
+    assert test_board.make_move((6, 4), (4, 4)) == True
+    assert test_board.make_move((0, 1), (2, 2)) == True
+    assert test_board.make_move((7, 5), (5, 3)) == True
+
+def test_history(setup):
+    _, test_board = setup
+    test_board.make_move((1, 4), (3, 4))
+    assert test_board.move_history == [((1, 4), (3, 4))]
