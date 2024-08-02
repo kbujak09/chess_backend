@@ -30,4 +30,3 @@ class Game:
   
   def print_board(self):
     return self.game_board.print_board()
-  
