@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
 import os
 
 load_dotenv()
@@ -16,6 +17,9 @@ CORS(app)
 
 db_key = os.getenv("MONGODB_URL")
 app.config["MONGO_URI"] = db_key
+
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_KEY')
+jwt = JWTManager(app)
 
 from db import init_db
 
