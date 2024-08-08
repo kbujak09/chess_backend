@@ -19,3 +19,14 @@ def save_user():
   user = User(data['username'], data['email'], data['password'])
   db['users'].insert_one(user.to_dict())
   return
+
+@chess_routes.route('/open_games', methods=['GET'])
+def get_open_games():
+  games = db['games'].find({
+    "$or": [
+      { "white": { "$ne": "null" }, "black": "null" },
+      { "white": "null", "black": { "$ne": "null" }}
+    ]
+  })
+
+  return jsonify(list(games))
