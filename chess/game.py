@@ -1,6 +1,8 @@
 from chess.board import Board
 import uuid
 
+from db import db
+
 class Game:
   def __init__(self):
     self.id = str(uuid.uuid4())
@@ -30,3 +32,13 @@ class Game:
   
   def print_board(self):
     return self.game_board.print_board()
+
+  def save_to_db(self):
+    game_data = {
+      "_id": str(self.id),
+      "players": self.players,
+      "current_turn": self.current_turn,
+      "is_over": self.game_over,
+      "board": self.game_board.board_to_json()
+    }
+    db.games.insert_one(game_data)
