@@ -1,3 +1,5 @@
+from chess.game import Game
+
 def validate_register(username, password, confirm_password):
   if len(username) < 4:
     return 'Username must be at least 4 characters'
@@ -8,3 +10,18 @@ def validate_register(username, password, confirm_password):
   if password != confirm_password:
     return "Passwords doesn't match"
   return True  
+
+def reinitialize_game(game_data):
+    game = Game(
+        playerId=None,
+        username=None,
+        gameId=game_data['_id']
+    )
+
+    game.players = game_data['players']
+    game.current_turn = game_data['current_turn']
+    game.game_over = game_data['is_over']
+
+    game.game_board.board_to_json()
+
+    return game

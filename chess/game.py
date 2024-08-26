@@ -1,13 +1,17 @@
 from chess.board import Board
 import uuid
+import random
 
 from db import db
 
 class Game:
-  def __init__(self):
-    self.id = str(uuid.uuid4())
+  def __init__(self, playerId, username, gameId):
+    self.id = gameId
     self.game_board = Board()
-    self.players = {'white': None, 'black': None}
+    if random.choice([True, False]):
+      self.players = {'white': { 'username': username, 'id': playerId}, 'black': { 'username': None, 'id': None}}
+    else:
+      self.players = {'white': { 'username': None, 'id': None}, 'black': { 'username': username, 'id': playerId}}
     self.current_turn = 'white'
     self.game_over = False
   
@@ -42,3 +46,13 @@ class Game:
       "board": self.game_board.board_to_json()
     }
     db.games.insert_one(game_data)
+  
+  def to_json(self):
+    game_data = {
+      "_id": str(self.id),
+      "players": self.players,
+      "current_turn": self.current_turn,
+      "is_over": self.game_over,
+      "board": self.game_board.board_to_json()
+    }
+    return game_data
