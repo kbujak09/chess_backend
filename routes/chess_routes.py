@@ -26,10 +26,12 @@ def save_user():
 
 @chess_routes.route('/open_games', methods=['GET'])
 def get_open_games():
+  user_id = request.args.get('userId')
   games = db['games'].find({
-    "$or": [
-        { "players.white": { "$ne": None }, "players.black": None },
-        { "players.white": None, "players.black": { "$ne": None } }
+    'status': 'open',
+    '$nor': [
+      {'players.white.id': user_id},
+      {'players.black.id': user_id}
     ]
   })
   games_list = list(games)

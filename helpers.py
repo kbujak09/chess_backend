@@ -20,7 +20,7 @@ def reinitialize_game(game_data):
 
     game.players = game_data['players']
     game.current_turn = game_data['current_turn']
-    game.game_over = game_data['is_over']
+    game.status = game_data['status']
 
     game.game_board.board_to_json()
 

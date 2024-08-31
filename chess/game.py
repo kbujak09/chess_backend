@@ -13,7 +13,7 @@ class Game:
     else:
       self.players = {'white': { 'username': None, 'id': None}, 'black': { 'username': username, 'id': playerId}}
     self.current_turn = 'white'
-    self.game_over = False
+    self.status = 'open'
   
   def take_turn(self, start_pos, end_pos):
     
@@ -26,10 +26,10 @@ class Game:
     self.current_turn = 'black' if self.current_turn == 'white' else 'black'
     
     if self.game_board.is_checkmate(self.current_turn):
-      self.game_over = True
+      self.status = 'ended'
       print(f"{self.current_turn} lost")
     elif self.game_board.is_stalemate(self.current_turn):
-      self.game_over = True
+      self.status = 'ended'
       print("stalemate")
       
     return True
@@ -42,7 +42,7 @@ class Game:
       "_id": str(self.id),
       "players": self.players,
       "current_turn": self.current_turn,
-      "is_over": self.game_over,
+      "status": self.status,
       "board": self.game_board.board_to_json()
     }
     db.games.insert_one(game_data)
@@ -52,7 +52,7 @@ class Game:
       "_id": str(self.id),
       "players": self.players,
       "current_turn": self.current_turn,
-      "is_over": self.game_over,
+      "status": self.status,
       "board": self.game_board.board_to_json()
     }
     return game_data
