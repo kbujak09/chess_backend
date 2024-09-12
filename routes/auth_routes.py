@@ -18,7 +18,11 @@ def register():
   password = data.get('password')
   confirm_password = data.get('confirm_password')
   
-  existing_user = db['users'].find({'username': username})
+  print(username)
+  
+  existing_user = db['users'].find_one({'username': username})
+  
+  print(existing_user)
   
   if existing_user:
     return jsonify({'message': 'User with that name already exists'}), 400
