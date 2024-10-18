@@ -12,16 +12,17 @@ def validate_register(username, password, confirm_password):
   return True  
 
 def reinitialize_game(game_data):
-    game = Game(
-        playerId=None,
-        username=None,
-        gameId=game_data['_id']
-    )
+  game = Game(
+    playerId=None,
+    username=None,
+    gameId=game_data['_id'],
+    initialTime=game_data['initial_time'],
+    increment=game_data['increment'])
 
-    game.players = game_data['players']
-    game.current_turn = game_data['current_turn']
-    game.status = game_data['status']
+  game.players = game_data['players']
+  game.current_turn = game_data['current_turn']
+  game.status = game_data['status']
 
-    game.game_board.board_to_json()
+  game.game_board.board_to_json()
 
-    return game
+  return game

@@ -24,3 +24,10 @@ def on_leave(data):
   room = data['room']
   leave_room(room)
   send(user_id + ' has left the room.', to=room)
+  
+@socketio.on('move')
+def on_move(data):
+  pos = data['position']
+  userId = data['userId']
+  room = data['room']
+  emit('enemyMoved', {'pos': pos, 'userId': userId}, to=room)

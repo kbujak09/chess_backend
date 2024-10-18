@@ -1,19 +1,28 @@
 from chess.board import Board
 import uuid
 import random
+from datetime import datetime
 
 from db import db
 
 class Game:
-  def __init__(self, playerId, username, gameId):
+  def __init__(self, playerId, username, gameId, initialTime, increment):
     self.id = gameId
     self.game_board = Board()
     if random.choice([True, False]):
-      self.players = {'white': { 'username': username, 'id': playerId}, 'black': { 'username': None, 'id': None}}
+      self.players = {
+        'white': {'username': username, 'id': playerId, 'time': initialTime},
+        'black': {'username': None, 'id': None, 'time': initialTime}
+      }
     else:
-      self.players = {'white': { 'username': None, 'id': None}, 'black': { 'username': username, 'id': playerId}}
+      self.players = {
+        'black': {'username': username, 'id': playerId,  'time': initialTime},
+        'white': {'username': None, 'id': None,  'time': initialTime}
+      }
     self.current_turn = 'white'
     self.status = 'open'
+    self.initial_time = initialTime
+    self.increment = increment
   
   def take_turn(self, start_pos, end_pos):
     
@@ -43,16 +52,23 @@ class Game:
       "players": self.players,
       "current_turn": self.current_turn,
       "status": self.status,
-      "board": self.game_board.board_to_json()
+      "board": self.game_board.board_to_json(),
+      "initial_time": self.initial_time,
+      "increment": self.increment
     }
     db.games.insert_one(game_data)
   
   def to_json(self):
+    
+    created_at = datetime.now()
+    
     game_data = {
       "_id": str(self.id),
       "players": self.players,
       "current_turn": self.current_turn,
       "status": self.status,
-      "board": self.game_board.board_to_json()
+      "board": self.game_board.board_to_json(),
+      "initial_time": self.initial_time,
+      "created_at": created_at
     }
     return game_data
