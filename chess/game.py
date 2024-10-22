@@ -19,6 +19,7 @@ class Game:
         'black': {'username': username, 'id': playerId,  'time': initialTime},
         'white': {'username': None, 'id': None,  'time': initialTime}
       }
+    self.moves = []
     self.current_turn = 'white'
     self.status = 'open'
     self.initial_time = initialTime
@@ -52,7 +53,11 @@ class Game:
       "players": self.players,
       "current_turn": self.current_turn,
       "status": self.status,
-      "board": self.game_board.board_to_json(),
+      "board": {
+        "positions": self.game_board.board_to_json(),
+        "history": self.game_board.move_history
+      },
+      "moves": self.moves,
       "initial_time": self.initial_time,
       "increment": self.increment
     }
@@ -67,8 +72,31 @@ class Game:
       "players": self.players,
       "current_turn": self.current_turn,
       "status": self.status,
-      "board": self.game_board.board_to_json(),
+      "board": {
+        "positions": self.game_board.board_to_json(),
+        "history": self.game_board.move_history
+      },
+      "moves": self.moves,
       "initial_time": self.initial_time,
       "created_at": created_at
     }
+    return game_data
+  
+  def update_game_data(self):
+    game_data = {
+      "_id": str(self.id),
+      "players": self.players,
+      "current_turn": self.current_turn,
+      "status": self.status,
+      "board": {
+        "positions": self.game_board.board_to_json(),
+        "history": self.game_board.move_history
+      },
+      "moves": self.moves,
+      "initial_time": self.initial_time,
+      "increment": self.increment
+    }
+    
+    db.games.update_one({'_id': self.id}, {'$set': game_data})
+    
     return game_data

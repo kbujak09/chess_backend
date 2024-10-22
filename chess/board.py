@@ -163,10 +163,12 @@ class Board:
     saved_piece = self.board[end_pos[0]][end_pos[1]]
     
     if not piece:
+      print('no piece')
       return False
     
     if isinstance(piece, King):
       if end_pos not in self.get_king_legal_moves(piece.get_color()):
+        print('illegal king move')
         return False
       else:
         self.move_piece(start_pos, end_pos)
@@ -177,6 +179,7 @@ class Board:
       return False
     
     if end_pos not in piece.moves((start_pos), self.board):
+      print(piece.moves((start_pos), self.board))
       return False
     
     self.move_piece(start_pos, end_pos)

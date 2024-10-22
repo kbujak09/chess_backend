@@ -83,5 +83,19 @@ def change_status(game_id):
   
   return jsonify({'message': 'Game status changed.'})
   
+@chess_routes.route('games/<game_id>/moves', methods=['POST'])
+def make_move(game_id):
+  data = request.get_json()['moveData']
   
+  game_data = db['games'].find_one({'_id': game_id})
+  
+  game = reinitialize_game(game_data)
+  
+  game.take_turn(tuple(data['start']), tuple(data['end']))
+  
+  game.game_board.print_board()
+  
+  game.update_game_data()
+  
+  return jsonify()
   
