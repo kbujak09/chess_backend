@@ -1,7 +1,7 @@
 from chess.board import Board
-import uuid
 import random
 from datetime import datetime
+import time
 
 from db import db
 
@@ -19,30 +19,42 @@ class Game:
         'black': {'username': username, 'id': playerId,  'time': initialTime},
         'white': {'username': None, 'id': None,  'time': initialTime}
       }
-    self.moves = []
     self.current_turn = 'white'
     self.status = 'open'
     self.initial_time = initialTime
     self.increment = increment
+    self.last_move_time = time.time()
   
   def take_turn(self, start_pos, end_pos):
+    current_player = self.players[self.current_turn]
+    
+    print(self.last_move_time, time.time())
+    elapsed_time = round(time.time() - self.last_move_time)
+    current_player['time'] -= elapsed_time
+    self.last_move_time = time.time()
+    
+    if current_player['time'] <= 0:
+      self.status = f"{self.current_turn} lost on time"
+      return {'status': False, 'message': 'Time over', 'gameStatus': self.status}
     
     if self.game_board.board[start_pos[0]][start_pos[1]].get_color() != self.current_turn:
       return False
     
-    if not self.game_board.make_move(start_pos, end_pos):
-      return False
+    move = self.game_board.make_move(start_pos, end_pos)
     
-    self.current_turn = 'black' if self.current_turn == 'white' else 'black'
+    if not move['status']:
+      return {'status': move['status'], 'message': move['message'], 'gameStatus': self.status}
+    
+    current_player['time'] += self.increment
+    
+    self.current_turn = 'black' if self.current_turn == 'white' else 'white'
     
     if self.game_board.is_checkmate(self.current_turn):
-      self.status = 'ended'
-      print(f"{self.current_turn} lost")
+      self.status = 'white won' if self.current_turn == 'black' else 'black won'
     elif self.game_board.is_stalemate(self.current_turn):
-      self.status = 'ended'
-      print("stalemate")
+      self.status = 'stalemate'
       
-    return True
+    return {'status': move['status'], 'type': move['type'], 'gameStatus': self.status}
   
   def print_board(self):
     return self.game_board.print_board()
@@ -57,9 +69,9 @@ class Game:
         "positions": self.game_board.board_to_json(),
         "history": self.game_board.move_history
       },
-      "moves": self.moves,
       "initial_time": self.initial_time,
-      "increment": self.increment
+      "increment": self.increment,
+      "last_move_time": self.last_move_time
     }
     db.games.insert_one(game_data)
   
@@ -72,13 +84,14 @@ class Game:
       "players": self.players,
       "current_turn": self.current_turn,
       "status": self.status,
+      "increment": self.increment,
       "board": {
         "positions": self.game_board.board_to_json(),
         "history": self.game_board.move_history
       },
-      "moves": self.moves,
       "initial_time": self.initial_time,
-      "created_at": created_at
+      "last_move_time": self.last_move_time,
+      "created_at": created_at,
     }
     return game_data
   
@@ -92,9 +105,9 @@ class Game:
         "positions": self.game_board.board_to_json(),
         "history": self.game_board.move_history
       },
-      "moves": self.moves,
       "initial_time": self.initial_time,
-      "increment": self.increment
+      "increment": self.increment,
+      "last_move_time": self.last_move_time,
     }
     
     db.games.update_one({'_id': self.id}, {'$set': game_data})

@@ -87,6 +87,7 @@ pass
 class Rook(LineMoverPiece):
   def __init__(self, color):
     super().__init__('rook', color)
+    self.has_moved = False
     
   def moves(self, position, board):
     move_directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -105,6 +106,7 @@ pass
 class King(Piece):
   def __init__(self, color):
     super().__init__('king', color)
+    self.has_moved = False
     
   def moves(self, position, board):
     moves = []
@@ -119,5 +121,6 @@ class King(Piece):
       if 0 <= row < 8 and 0 <= col < 8:
         if board[row][col] is None or board[row][col].color != self.color:
           moves.append((row, col))
-    return moves
+      
+    return moves  
 pass

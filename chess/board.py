@@ -1,4 +1,4 @@
-from chess.piece import Pawn, Bishop, Knight, Rook, Queen, King
+from chess.piece import Pawn, Bishop, Knight, Rook, Queen, King, Piece
 
 class Board:
   def __init__(self):
@@ -143,7 +143,22 @@ class Board:
           
       self.move_piece(move, king_position)
       self.board[move[0]][move[1]] = saved_piece
+    
+    king_color = king.get_color()
       
+    if not king.has_moved:
+      if self.can_castle(king_color, 'kingside'):
+        if king_color == 'white':
+          legal_moves.append((0, 6))
+        else:
+          legal_moves.append((7, 6))
+      if self.can_castle(king_color, 'queenside'):
+        if king_color == 'white':
+          legal_moves.append((0, 2))
+        else:
+          legal_moves.append((7, 2))
+      
+    print(legal_moves)
     return legal_moves
       
     
@@ -163,34 +178,63 @@ class Board:
     saved_piece = self.board[end_pos[0]][end_pos[1]]
     
     if not piece:
-      print('no piece')
-      return False
+      return {'status': False, 'message': 'No piece found'}
     
     if isinstance(piece, King):
       if end_pos not in self.get_king_legal_moves(piece.get_color()):
-        print('illegal king move')
-        return False
+        return {'status': False, 'message': 'Illegal king move'}
       else:
+        if piece.get_color() == 'white':
+          if (start_pos == (0, 4) and end_pos == (0, 6) and self.can_castle('white', 'kingside')):
+            self.move_piece((0, 7), (0, 5))
+            self.move_piece(start_pos, end_pos)
+            self.move_history.append((start_pos, end_pos))
+            return {'status': True, 'type': 'castle'}            
+          elif (start_pos == (0, 4) and end_pos == (0, 2) and self.can_castle('white', 'queenside')):
+            self.move_piece((0, 0), (0, 3))
+            self.move_piece(start_pos, end_pos)
+            self.move_history.append((start_pos, end_pos))
+            return {'status': True, 'type': 'castle'}            
+        else:
+          if (start_pos == (7, 4) and end_pos == (7, 6) and self.can_castle('black', 'kingside')):
+            self.move_piece((7, 7), (7, 5))
+            self.move_piece(start_pos, end_pos)
+            self.move_history.append((start_pos, end_pos))
+            return {'status': True, 'type': 'castle'}                  
+          elif (start_pos == (7, 4) and end_pos == (7, 2) and self.can_castle('black', 'queenside')):
+            self.move_piece((7, 0), (7, 3))
+            self.move_piece(start_pos, end_pos)
+            self.move_history.append((start_pos, end_pos))      
+            return {'status': True, 'type': 'castle'}                  
         self.move_piece(start_pos, end_pos)
         self.move_history.append((start_pos, end_pos))
-        return True
+        if not saved_piece:
+          return {'status': True, 'type': 'move'}
+        else:
+          return {'status': True, 'type': 'take'}
     
     if self.is_check(piece.get_color()) and not self.get_check_blocking_moves(piece.get_color()):
-      return False
+      return {'status': False, 'message': 'You are in check', 'type': 'invalid'}
     
     if end_pos not in piece.moves((start_pos), self.board):
-      print(piece.moves((start_pos), self.board))
-      return False
+      return {'status': False, 'message': 'Invalid move'}
     
     self.move_piece(start_pos, end_pos)
     
     if self.is_check(piece.get_color()):
       self.move_piece(end_pos, start_pos)
       self.board[end_pos[0]][end_pos[1]] = saved_piece
-      return False
+      return {'status': False, 'message': 'Invalid move, king would be in check', 'type': 'invalid'}
     
     self.move_history.append((start_pos, end_pos))
-    return True
+    
+    if self.is_check('white' if piece.get_color() == 'black' else 'black'):
+      return {'status': True, 'type': 'check'}
+    
+    if not saved_piece:
+      return {'status': True, 'type': 'move'}
+    else:
+      return {'status': True, 'type': 'take'}
     
   def board_to_json(self):
     data = []
@@ -201,8 +245,34 @@ class Board:
           data.append({
             'type': piece.get_piece_type(),
             'color': piece.get_color(),
-            'position': (row, col)
+            'position': (row, col),
+            'possible_moves': piece.moves((row,col), self.board)
           })
     return data
     
+  def can_castle(self, color, side):
+    row = 0 if color == 'white' else 7
+    king = self.board[row][4]
+    if not isinstance(king, King) or king.has_moved:
+      return False
     
+    enemy_moves = self.get_all_color_moves('white' if color == 'black' else 'black')
+    
+    if side == 'kingside':
+      rook = self.board[row][7]
+      
+      if (isinstance(rook, Rook) and not rook.has_moved 
+          and self.board[row][5] is None and self.board[row][6] is None
+          and not self.is_check(color) and not (row, 5) in enemy_moves
+          and not (row, 6) in enemy_moves):
+        return True
+    
+    elif side == 'queenside':
+      rook = self.board[row][0]
+      
+      if (isinstance(rook, Rook) and not rook.has_moved
+          and self.board[row][1] is None and self.board[row][2] is None
+          and self.board[row][3] is None and not self.is_check(color)
+          and not (row, 1) in enemy_moves and not (row, 2) in enemy_moves
+          and not (row, 3) in enemy_moves):
+        return True

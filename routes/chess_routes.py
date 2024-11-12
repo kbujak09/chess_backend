@@ -91,11 +91,22 @@ def make_move(game_id):
   
   game = reinitialize_game(game_data)
   
-  game.take_turn(tuple(data['start']), tuple(data['end']))
+  move = game.take_turn(tuple(data['start']), tuple(data['end']))
   
-  game.game_board.print_board()
+  if not move['status']:
+    return jsonify({'status': False, 'message': move['message'], 'gameStatus': move['gameStatus']})
   
   game.update_game_data()
   
-  return jsonify()
+  return jsonify({'status': True, 'board': game.game_board.board_to_json(), 'type': move['type'], 'gameStatus': move['gameStatus']})
   
+@chess_routes.route('games/<game_id>/moves', methods=['GET'])
+def get_board(game_id):
+  game_data = db['games'].find_one({'_id': game_id})
+  
+  game = reinitialize_game(game_data)
+  
+  if not game.game_board:
+    return jsonify({'status': False, 'message': 'Game board not found'})
+  
+  return jsonify({'status': True, 'board': game.game_board.board_to_json()})

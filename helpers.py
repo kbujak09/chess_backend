@@ -26,6 +26,7 @@ def reinitialize_game(game_data):
     game.players = game_data['players']
     game.current_turn = game_data['current_turn']
     game.status = game_data['status']
+    game.last_move_time = game_data['last_move_time']
     
     game.game_board.clear_board()
     
