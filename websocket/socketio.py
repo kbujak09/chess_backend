@@ -33,4 +33,5 @@ def on_move(data):
   moveType = data['type']
   gameStatus = data['gameStatus']
   board = data['board']
-  emit('enemyMoved', {'pos': pos, 'userId': userId, 'type': moveType, 'gameStatus': gameStatus, 'board': board}, to=room)
+  players = data['players']
+  emit('enemyMoved', {'pos': pos, 'userId': userId, 'type': moveType, 'gameStatus': gameStatus, 'board': board, 'players': players}, to=room)

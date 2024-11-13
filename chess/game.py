@@ -29,8 +29,6 @@ class Game:
     current_player = self.players[self.current_turn]
 
     elapsed_time = round(time.time()) - self.last_move_time
-    print(elapsed_time)
-    print (current_player['time'])
     
     if current_player['time'] <= 0:
       self.status = f"{self.current_turn} lost on time"
@@ -45,10 +43,8 @@ class Game:
       return {'status': move['status'], 'message': move['message'], 'gameStatus': self.status}
     
     self.last_move_time = round(time.time())
-
-    print(self.increment)
     
-    current_player['time'] -= (elapsed_time + self.increment)
+    current_player['time'] -= (elapsed_time - self.increment)
     
     self.current_turn = 'black' if self.current_turn == 'white' else 'white'
     
