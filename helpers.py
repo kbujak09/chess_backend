@@ -1,5 +1,7 @@
 from chess.game import Game
 from chess.piece import Pawn, Rook, Knight, Bishop, Queen, King
+from db import db
+import time
 
 def validate_register(username, password, confirm_password):
   if len(username) < 4:
@@ -13,7 +15,6 @@ def validate_register(username, password, confirm_password):
   return True  
 
 def reinitialize_game(game_data):
-    # Initialize a new game
     game = Game(
         playerId=None,
         username=None,
@@ -22,7 +23,6 @@ def reinitialize_game(game_data):
         increment=game_data['increment']
     )
 
-    # Set player information and game state from the database
     game.players = game_data['players']
     game.current_turn = game_data['current_turn']
     game.status = game_data['status']
@@ -54,3 +54,8 @@ def reinitialize_game(game_data):
     game.game_board.move_history = game_data['board']['history']
 
     return game
+
+def update_timers(game_id):
+  game = db['games'].find_one(game_id)
+
+  current_time = round(time.time())

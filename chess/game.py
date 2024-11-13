@@ -6,7 +6,7 @@ import time
 from db import db
 
 class Game:
-  def __init__(self, playerId, username, gameId, initialTime, increment):
+  def __init__(self, playerId, username, gameId, initialTime, increment, last_move_time=None):
     self.id = gameId
     self.game_board = Board()
     if random.choice([True, False]):
@@ -23,15 +23,14 @@ class Game:
     self.status = 'open'
     self.initial_time = initialTime
     self.increment = increment
-    self.last_move_time = time.time()
+    self.last_move_time = last_move_time
   
   def take_turn(self, start_pos, end_pos):
     current_player = self.players[self.current_turn]
-    
-    print(self.last_move_time, time.time())
-    elapsed_time = round(time.time() - self.last_move_time)
-    current_player['time'] -= elapsed_time
-    self.last_move_time = time.time()
+
+    elapsed_time = round(time.time()) - self.last_move_time
+    print(elapsed_time)
+    print (current_player['time'])
     
     if current_player['time'] <= 0:
       self.status = f"{self.current_turn} lost on time"
@@ -45,7 +44,11 @@ class Game:
     if not move['status']:
       return {'status': move['status'], 'message': move['message'], 'gameStatus': self.status}
     
-    current_player['time'] += self.increment
+    self.last_move_time = round(time.time())
+
+    print(self.increment)
+    
+    current_player['time'] -= (elapsed_time + self.increment)
     
     self.current_turn = 'black' if self.current_turn == 'white' else 'white'
     
@@ -113,3 +116,8 @@ class Game:
     db.games.update_one({'_id': self.id}, {'$set': game_data})
     
     return game_data
+  
+  def start_game(self):
+    self.status = 'live'
+    self.last_move_time = round(time.time())
+    return

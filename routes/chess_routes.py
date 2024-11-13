@@ -77,7 +77,16 @@ def add_player(game_id):
   
 @chess_routes.route('games/<game_id>/status', methods=['POST'])
 def change_status(game_id):
+  game_data = db['games'].find_one({'_id': game_id})
+
+  game = reinitialize_game(game_data)
+
   status = request.get_json()
+
+  if game.status == 'open' and status['status'] == 'live':
+    game.start_game()
+    game.update_game_data()
+    return jsonify({'message': 'Game started'})
   
   db['games'].update_one({'_id': game_id}, {'$set': {'status': status['status']}})
   
@@ -94,11 +103,11 @@ def make_move(game_id):
   move = game.take_turn(tuple(data['start']), tuple(data['end']))
   
   if not move['status']:
-    return jsonify({'status': False, 'message': move['message'], 'gameStatus': move['gameStatus']})
+    return jsonify({'status': False, 'message': move['message'], 'gameStatus': move['gameStatus'], 'players': game.players})
   
   game.update_game_data()
   
-  return jsonify({'status': True, 'board': game.game_board.board_to_json(), 'type': move['type'], 'gameStatus': move['gameStatus']})
+  return jsonify({'status': True, 'board': game.game_board.board_to_json(), 'type': move['type'], 'gameStatus': move['gameStatus'], 'players': game.players})
   
 @chess_routes.route('games/<game_id>/moves', methods=['GET'])
 def get_board(game_id):

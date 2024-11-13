@@ -123,7 +123,6 @@ class Board:
                 row_str += piece_symbols[piece_type][color]
         print(row_str)
 
-    
   def clear_board(self):
     for row in range(8):
       for col in range(8):
@@ -159,8 +158,7 @@ class Board:
           legal_moves.append((7, 2))
       
     print(legal_moves)
-    return legal_moves
-      
+    return legal_moves   
     
   def is_stalemate(self, color):
     for row in range(8):
