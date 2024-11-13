@@ -1,7 +1,7 @@
 from flask import jsonify, Blueprint, request
 from chess.game import Game
 from models.user import User
-from helpers import reinitialize_game
+from helpers import reinitialize_game, update_timers
 
 from db import db
 
@@ -48,6 +48,8 @@ def get_game(game_id):
   game_data = db['games'].find_one({'_id': game_id })
   
   game = reinitialize_game(game_data)
+  
+  update_timers(game)
   
   return jsonify(game.to_json())
 

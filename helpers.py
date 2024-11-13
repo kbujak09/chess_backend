@@ -55,7 +55,13 @@ def reinitialize_game(game_data):
 
     return game
 
-def update_timers(game_id):
-  game = db['games'].find_one(game_id)
-
+def update_timers(game):
+  if not game.last_move_time: return
+  
   current_time = round(time.time())
+  elapsed_time = current_time - game.last_move_time
+
+  if game.current_turn == 'white':
+      game.players['white']['time'] -= elapsed_time
+  else:
+      game.players['black']['time'] -= elapsed_time
