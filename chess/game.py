@@ -28,7 +28,7 @@ class Game:
   def take_turn(self, start_pos, end_pos):
     current_player = self.players[self.current_turn]
 
-    elapsed_time = round(time.time()) - self.last_move_time
+    elapsed_time = time.time() - self.last_move_time
     
     if current_player['time'] <= 0:
       self.status = f"{self.current_turn} lost on time"
@@ -42,7 +42,7 @@ class Game:
     if not move['status']:
       return {'status': move['status'], 'message': move['message'], 'gameStatus': self.status}
     
-    self.last_move_time = round(time.time())
+    self.last_move_time = time.time()
     
     current_player['time'] -= (elapsed_time - self.increment)
     
@@ -115,5 +115,5 @@ class Game:
   
   def start_game(self):
     self.status = 'live'
-    self.last_move_time = round(time.time())
+    self.last_move_time = time.time()
     return
