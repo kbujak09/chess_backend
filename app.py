@@ -36,4 +36,4 @@ from routes.auth_routes import auth_routes
 app.register_blueprint(auth_routes, url_prefix='/api')
 
 if __name__ == '__main__':
-  socketio.run(app, debug=True)
+  socketio.run(app, host='0.0.0.0', port=5000, debug=True)

@@ -3,6 +3,8 @@ from . import socketio
 
 @socketio.on('join')
 def on_join(data):
+  print(data)
+  print('hello')
   user_id = data['id']
   username = data['username']
   room = data['room']

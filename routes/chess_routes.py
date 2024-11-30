@@ -121,3 +121,20 @@ def get_board(game_id):
     return jsonify({'status': False, 'message': 'Game board not found'})
   
   return jsonify({'status': True, 'board': game.game_board.board_to_json()})
+
+@chess_routes.route('games/<game_id>/status', methods=['GET'])
+def get_status(game_id):
+  game_data = db['games'].find_one({'_id': game_id})
+
+  game = reinitialize_game(game_data)
+
+  update_timers(game)
+
+  if game.players['white']['time'] <= 0:
+    game.status = 'black won' 
+  elif game.players['black']['time'] <= 0:
+    game.status = 'white won'
+
+  game.update_game_data()
+
+  return jsonify({'status': game.status})
